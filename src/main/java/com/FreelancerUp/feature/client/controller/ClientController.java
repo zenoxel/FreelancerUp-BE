@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,14 +20,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/clients")
+@RequestMapping(value = "/api/v1/clients", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Tag(name = "Client", description = "Client Management APIs")
 public class ClientController {
 
     private final ClientService clientService;
 
-    @PostMapping("/register")
+    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Register as client")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ClientProfileResponse> registerClient(
@@ -49,7 +50,7 @@ public class ClientController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/profile")
+    @PutMapping(value = "/profile", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Update client profile")
     @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<ClientProfileResponse> updateClientProfile(
