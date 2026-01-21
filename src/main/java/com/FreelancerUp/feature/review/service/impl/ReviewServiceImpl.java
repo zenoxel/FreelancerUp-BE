@@ -63,7 +63,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         // Check if review already exists
-        reviewRepository.findByFromUserIdAndToUserIdAndProjectId(fromUserId, request.getToUserId(), request.getProjectId())
+        reviewRepository.findByFromUserAndToUserAndProjectId(fromUserId, request.getToUserId(), request.getProjectId())
                 .ifPresent(existing -> {
                     throw new BadRequestException("Review already exists for this project");
                 });
@@ -178,7 +178,7 @@ public class ReviewServiceImpl implements ReviewService {
     public Page<ReviewResponse> getReviewsByUserPaginated(UUID userId, Pageable pageable) {
         log.info("Fetching paginated reviews for user: {}", userId);
 
-        Page<Review> reviewPage = reviewRepository.findByToUserIdAndIsVisibleTrue(userId, pageable);
+        Page<Review> reviewPage = reviewRepository.findByToUser_IdAndIsVisibleTrue(userId, pageable);
 
         return reviewPage.map(review -> {
             // Get project title for each review
@@ -198,7 +198,7 @@ public class ReviewServiceImpl implements ReviewService {
     public List<ReviewResponse> getReviewsGivenByUser(UUID userId) {
         log.info("Fetching reviews given by user: {}", userId);
 
-        List<Review> reviews = reviewRepository.findByFromUserId(userId);
+        List<Review> reviews = reviewRepository.findByFromUser_Id(userId);
 
         return reviews.stream()
                 .map(review -> {

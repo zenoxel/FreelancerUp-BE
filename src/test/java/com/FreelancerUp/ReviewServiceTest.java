@@ -141,7 +141,7 @@ class ReviewServiceTest {
         when(userRepository.findById(fromUserId)).thenReturn(Optional.of(fromUser));
         when(userRepository.findById(toUserId)).thenReturn(Optional.of(toUser));
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
-        when(reviewRepository.findByFromUserIdAndToUserIdAndProjectId(fromUserId, toUserId, projectId))
+        when(reviewRepository.findByFromUserAndToUserAndProjectId(fromUserId, toUserId, projectId))
                 .thenReturn(Optional.empty());
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
 
@@ -247,7 +247,7 @@ class ReviewServiceTest {
         when(userRepository.findById(fromUserId)).thenReturn(Optional.of(fromUser));
         when(userRepository.findById(toUserId)).thenReturn(Optional.of(toUser));
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
-        when(reviewRepository.findByFromUserIdAndToUserIdAndProjectId(fromUserId, toUserId, projectId))
+        when(reviewRepository.findByFromUserAndToUserAndProjectId(fromUserId, toUserId, projectId))
                 .thenReturn(Optional.of(review));
 
         assertThatThrownBy(() -> reviewService.createReview(fromUserId, request))
@@ -318,7 +318,7 @@ class ReviewServiceTest {
     @DisplayName("Should get reviews given by user successfully")
     void testGetReviewsGivenByUser_Success() {
         List<Review> reviews = List.of(review);
-        when(reviewRepository.findByFromUserId(fromUserId)).thenReturn(reviews);
+        when(reviewRepository.findByFromUser_Id(fromUserId)).thenReturn(reviews);
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
         List<ReviewResponse> responses = reviewService.getReviewsGivenByUser(fromUserId);
@@ -327,7 +327,7 @@ class ReviewServiceTest {
         assertThat(responses).hasSize(1);
         assertThat(responses.get(0).getFromUserId()).isEqualTo(fromUserId);
 
-        verify(reviewRepository, times(1)).findByFromUserId(fromUserId);
+        verify(reviewRepository, times(1)).findByFromUser_Id(fromUserId);
     }
 
     @Test
@@ -429,7 +429,7 @@ class ReviewServiceTest {
         List<Review> reviews = List.of(review);
         Page<Review> reviewPage = new PageImpl<>(reviews, pageable, 1);
 
-        when(reviewRepository.findByToUserIdAndIsVisibleTrue(toUserId, pageable))
+        when(reviewRepository.findByToUser_IdAndIsVisibleTrue(toUserId, pageable))
                 .thenReturn(reviewPage);
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -440,6 +440,6 @@ class ReviewServiceTest {
         assertThat(response.getContent().get(0).getToUserId()).isEqualTo(toUserId);
 
         verify(reviewRepository, times(1))
-                .findByToUserIdAndIsVisibleTrue(toUserId, pageable);
+                .findByToUser_IdAndIsVisibleTrue(toUserId, pageable);
     }
 }
