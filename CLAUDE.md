@@ -87,17 +87,12 @@ SPRING_DATA_REDIS_URI=rediss://default:password@host:6379
 
 ### Docker
 ```bash
-# Start all services (PostgreSQL, MongoDB, Redis)
-docker compose up -d --build
+# Note: No docker-compose.yml exists in current setup
+# Use external database services (Supabase, MongoDB Atlas, Upstash)
+# or add docker-compose.yml manually if needed
 
-# Check service status
-docker compose ps
-
-# View logs
-docker compose logs -f
-
-# Initialize PostgreSQL database
-docker exec -it freelancerup_postgres psql -U postgres -d freelancerup \
+# Initialize PostgreSQL database (if using local Docker)
+docker exec -it <container_name> psql -U postgres -d freelancerup \
     -f /docker-entrypoint-initdb.d/init.sql
 ```
 
@@ -227,27 +222,47 @@ public class PaymentService {
 }
 ```
 
-## Implementation Phases
+## Implementation Status
 
-The project follows a phased implementation (8 weeks):
+**Current Phase**: Backend Module Implementation (Entities, Repositories, Services, Controllers)
 
-**Phase 1-3 (Foundation)**: Core entities, documents, repositories
-**Phase 4-5 (Core Features)**: Client & Project modules
-**Phase 6 (Bidding)**: Bid submission and management
-**Phase 7 (Payment)**: Escrow system (CRITICAL PATH)
-**Phase 8 (Contract)**: Auto-contract creation
-**Phase 9 (Chat)**: Real-time messaging
-**Phase 10 (Review)**: Reputation system
-**Phase 11 (Cache)**: Redis caching layer
-**Phase 12 (Security)**: RBAC, validation, rate limiting
-**Phase 13 (Testing)**: Unit & integration tests
-**Phase 14 (Deployment)**: Production configuration
+### Completed Modules
+- ✅ **Entities & Documents**: PostgreSQL entities and MongoDB documents defined
+- ✅ **Repositories**: PostgreSQL and MongoDB repository interfaces
+- ✅ **Client Module**: Registration, profile management, statistics
+- ✅ **Project Module**: CRUD operations, search, status management
+- ✅ **Bid Module**: Bid submission, acceptance, rejection, withdrawal
 
-See docs/PLANE.md for detailed phase specifications.
+### Partially Implemented
+- 🚧 **Cache Service**: [RedisCacheService.java](src/main/java/com/FreelancerUp/cache/RedisCacheService.java) stub exists (Phase 11)
+- 🚧 **Security**: JWT configuration ready, auth filters pending
+
+### Pending Modules
+- ❌ **Payment/Escrow**: Critical system - requires `@Transactional` operations
+- ❌ **Contract**: Auto-contract creation on bid acceptance
+- ❌ **Chat**: Real-time messaging
+- ❌ **Review**: Reputation system
+
+See [docs/IMPLEMENTATION_SUMMARY.md](docs/IMPLEMENTATION_SUMMARY.md) for detailed progress.
+
+## Code Change Protocol
+
+Per [docs/.clauderc](docs/.clauderc), follow risk classification for ALL changes:
+
+**Type A (Safe)**: New files, comments, tests, isolated config → Apply immediately
+**Type B (Risky)**: Logic changes, refactoring → Show diff, await approval
+**Type C (Dangerous)**: Breaking changes, schema mods → Full impact analysis
 
 ## API Documentation
 
 Access Swagger UI at: `http://localhost:8081/swagger-ui/index.html`
+
+See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for complete API reference including:
+- Authentication (JWT Bearer tokens)
+- Request/response formats
+- Pagination parameters
+- Rate limiting
+- Example requests
 
 **Endpoint conventions:**
 - `/api/v1/{resource}` - Standard CRUD endpoints
@@ -281,9 +296,19 @@ Access Swagger UI at: `http://localhost:8081/swagger-ui/index.html`
 
 ## Important Files
 
+**Implementation Planning:**
 - `docs/PLANE.md` - Detailed 8-week implementation plan with code examples
+- `docs/IMPLEMENTATION_SUMMARY.md` - Current implementation status
+
+**Design Documentation:**
 - `docs/DATABASE_SCHEMA.md` - Complete database schema and relationships
 - `docs/CLASS.md` - UML class diagrams for all entities
 - `docs/USECASE.md` - Use case diagrams
 - `docs/SEQUENCE_CLIENT.md` - Client workflow sequences
 - `docs/SEQUENCE_FREELANCER.md` - Freelancer workflow sequences
+- `docs/API_DOCUMENTATION.md` - Complete API reference
+
+**Configuration:**
+- `application.yaml` - Spring Boot configuration (uses `${VARIABLE_NAME}` placeholders)
+- `DotEnvConfig.java` - Loads `.env` before Spring context
+- `.env` - Environment variables (NOT in git - see `.env.example`)
