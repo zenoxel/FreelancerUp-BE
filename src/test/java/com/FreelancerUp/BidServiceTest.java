@@ -5,6 +5,7 @@ import com.FreelancerUp.exception.ResourceNotFoundException;
 import com.FreelancerUp.feature.bid.dto.request.SubmitBidRequest;
 import com.FreelancerUp.feature.bid.dto.response.BidResponse;
 import com.FreelancerUp.feature.bid.service.impl.BidServiceImpl;
+import com.FreelancerUp.feature.contract.service.ContractService;
 import com.FreelancerUp.model.document.Bid;
 import com.FreelancerUp.model.document.Project;
 import com.FreelancerUp.model.entity.User;
@@ -45,6 +46,9 @@ class BidServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private ContractService contractService;
+
     private BidServiceImpl bidServiceImpl;
 
     private UUID clientId;
@@ -58,7 +62,7 @@ class BidServiceTest {
 
     @BeforeEach
     void setUp() {
-        bidServiceImpl = new BidServiceImpl(bidRepository, projectRepository, userRepository);
+        bidServiceImpl = new BidServiceImpl(bidRepository, projectRepository, userRepository, contractService);
 
         clientId = UUID.randomUUID();
         freelancerId = UUID.randomUUID();
@@ -232,6 +236,8 @@ class BidServiceTest {
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         when(userRepository.findById(freelancerId)).thenReturn(Optional.of(freelancer));
         when(bidRepository.save(any(Bid.class))).thenReturn(bid);
+        when(projectRepository.save(any(Project.class))).thenReturn(project);
+        doNothing().when(contractService).createContract(any(), any(), any());
 
         // When
         BidResponse response = bidServiceImpl.acceptBid(bidId, clientId);
@@ -243,6 +249,8 @@ class BidServiceTest {
 
         verify(bidRepository).findById(bidId);
         verify(bidRepository).save(any(Bid.class));
+        verify(contractService).createContract(eq(projectId), eq(clientId), eq(freelancerId));
+        verify(projectRepository).save(any(Project.class));
     }
 
     @Test

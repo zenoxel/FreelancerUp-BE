@@ -5,6 +5,7 @@ import com.FreelancerUp.exception.ResourceNotFoundException;
 import com.FreelancerUp.feature.bid.dto.request.SubmitBidRequest;
 import com.FreelancerUp.feature.bid.dto.response.BidResponse;
 import com.FreelancerUp.feature.bid.service.BidService;
+import com.FreelancerUp.feature.contract.service.ContractService;
 import com.FreelancerUp.feature.project.repository.ProjectRepository;
 import com.FreelancerUp.feature.user.repository.UserRepository;
 import com.FreelancerUp.model.document.Bid;
@@ -32,6 +33,7 @@ public class BidServiceImpl implements BidService {
     private final BidRepository bidRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final ContractService contractService;
 
     @Override
     public BidResponse submitBid(String projectId, UUID freelancerId, SubmitBidRequest request) {
@@ -124,8 +126,18 @@ public class BidServiceImpl implements BidService {
         bid.setRespondedAt(LocalDateTime.now());
         bid = bidRepository.save(bid);
 
-        // TODO: Create contract in Phase 8
-        // TODO: Update project status to IN_PROGRESS in Phase 8
+        // Auto-create contract when bid is accepted
+        contractService.createContract(
+                bid.getProjectId(),
+                clientId,
+                UUID.fromString(bid.getFreelancerId())
+        );
+
+        // Update project status to IN_PROGRESS
+        project.setStatus(ProjectStatus.IN_PROGRESS);
+        project.setFreelancerId(bid.getFreelancerId());
+        project.setStartedAt(LocalDateTime.now());
+        projectRepository.save(project);
 
         User freelancer = userRepository.findById(UUID.fromString(bid.getFreelancerId()))
                 .orElseThrow(() -> new ResourceNotFoundException("Freelancer not found"));
