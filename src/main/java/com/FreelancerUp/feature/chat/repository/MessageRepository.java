@@ -1,6 +1,7 @@
 package com.FreelancerUp.feature.chat.repository;
 
 import com.FreelancerUp.model.document.Message;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -12,7 +13,7 @@ import java.util.List;
 @Repository
 public interface MessageRepository extends MongoRepository<Message, String> {
 
-    List<Message> findByConversationIdOrderByCreatedAtDesc(
+    Page<Message> findByConversationIdOrderByCreatedAtDesc(
         String conversationId,
         Pageable pageable
     );
@@ -26,7 +27,17 @@ public interface MessageRepository extends MongoRepository<Message, String> {
            "{'toUserId': ?0}, " +
            "{'isRead': false}" +
            "]}")
-    Long countUnreadMessagesForUser(String toUserId);
+    List<Message> findByConversationIdAndToUserIdAndIsReadOrderByCreatedAtDesc(
+            String conversationId,
+            String toUserId,
+            boolean isRead
+    );
+
+    @Query("{$and: [" +
+           "{'toUserId': ?0}, " +
+           "{'isRead': false}" +
+           "]}")
+    Long countByConversationIdAndToUserIdAndIsRead(String conversationId, String toUserId, boolean isRead);
 
     @Query("{'conversationId': ?0, 'createdAt': {$gte: ?1}}")
     List<Message> findMessagesSince(String conversationId, LocalDateTime since);
