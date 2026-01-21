@@ -18,6 +18,8 @@ public interface BidRepository extends MongoRepository<Bid, String> {
 
     Optional<Bid> findByProjectIdAndFreelancerId(String projectId, String freelancerId);
 
+    Optional<Bid> findByProjectIdAndStatus(String projectId, BidStatus status);
+
     List<Bid> findByStatus(BidStatus status);
 
     @Query("{'projectId': ?0, $or: [{'status': 'PENDING'}, {'status': 'ACCEPTED'}]}")
