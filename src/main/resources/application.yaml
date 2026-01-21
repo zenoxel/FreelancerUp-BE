@@ -26,7 +26,7 @@ spring:
       uri: ${SPRING_DATA_MONGODB_URI}
       auto-index-creation: true
     redis:
-      url: ${SPRING_DATA_REDIS_URI}
+      url: ${SPRING_DATA_REDIS_URL}
       timeout: 60000ms
       lettuce:
         pool:
