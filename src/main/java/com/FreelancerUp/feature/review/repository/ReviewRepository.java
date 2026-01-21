@@ -15,15 +15,16 @@ import java.util.UUID;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, UUID> {
 
-    Optional<Review> findByFromUserIdAndToUserIdAndProjectId(UUID fromUserId, UUID toUserId, String projectId);
+    @Query("SELECT r FROM Review r WHERE r.fromUser.id = :fromUserId AND r.toUser.id = :toUserId AND r.projectId = :projectId")
+    Optional<Review> findByFromUserAndToUserAndProjectId(@Param("fromUserId") UUID fromUserId, @Param("toUserId") UUID toUserId, @Param("projectId") String projectId);
 
     List<Review> findByProjectId(String projectId);
 
-    List<Review> findByFromUserId(UUID fromUserId);
+    List<Review> findByFromUser_Id(UUID fromUserId);
 
-    List<Review> findByToUserId(UUID toUserId);
+    List<Review> findByToUser_Id(UUID toUserId);
 
-    @Query("SELECT r FROM Review r WHERE r.toUserId = :userId AND r.isVisible = true ORDER BY r.createdAt DESC")
+    @Query("SELECT r FROM Review r WHERE r.toUser.id = :userId AND r.isVisible = true ORDER BY r.createdAt DESC")
     List<Review> findVisibleReviewsByToUserId(@Param("userId") UUID userId);
 
     @Query("SELECT r FROM Review r WHERE r.projectId = :projectId AND r.isVisible = true ORDER BY r.createdAt DESC")
@@ -35,7 +36,7 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
     @Query("SELECT COUNT(r) FROM Review r WHERE r.toUser.id = :userId AND r.isVisible = true")
     Long getTotalReviewsForUser(@Param("userId") UUID userId);
 
-    Page<Review> findByToUserIdAndIsVisibleTrue(UUID toUserId, Pageable pageable);
+    Page<Review> findByToUser_IdAndIsVisibleTrue(UUID toUserId, Pageable pageable);
 
     Page<Review> findByProjectIdAndIsVisibleTrue(String projectId, Pageable pageable);
 }
