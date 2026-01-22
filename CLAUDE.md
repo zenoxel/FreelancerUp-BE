@@ -145,33 +145,38 @@ public ProjectDetailDTO getProjectDetail(String projectId) {
 
 ## Package Structure
 
-The codebase follows a feature-based package structure:
+The codebase follows a feature-based package structure under `com.FreelancerUp`:
 
 ```
-com/dev/
+com.FreelancerUp/
 ├── model/
 │   ├── entity/          # PostgreSQL entities (@Entity)
-│   └── document/        # MongoDB documents (@Document)
+│   ├── document/        # MongoDB documents (@Document)
+│   └── enums/           # Enumerations (CompanySize, ProjectStatus, etc.)
 ├── feature/
-│   ├── client/          # Client management
-│   ├── freelancer/      # Freelancer profiles & skills
-│   ├── project/         # Project CRUD & search
+│   ├── auth/            # Authentication & JWT
 │   ├── bid/             # Bidding system
-│   ├── payment/         # Wallets, payments, escrow
-│   ├── contract/        # Contract management
 │   ├── chat/            # Messaging & conversations
-│   └── review/          # Reviews & reputation
-├── config/              # Configuration classes
-├── security/            # JWT, auth filters
+│   ├── client/          # Client management
+│   ├── common/          # Shared utilities
+│   ├── contract/        # Contract management
+│   ├── freelancer/      # Freelancer profiles & skills
+│   ├── payment/         # Wallets, payments, escrow
+│   ├── project/         # Project CRUD & search
+│   ├── review/          # Reviews & reputation
+│   └── user/            # User management
+├── config/              # Configuration classes (DotEnvConfig, Security, etc.)
 ├── cache/               # Redis caching service
+├── validation/          # Custom validators
 ├── exception/           # Global exception handlers
-└── util/                # Utility classes
+└── FreelancerUpApplication.java  # Main Spring Boot application
 ```
 
 Each feature module contains:
 - `controller/` - REST endpoints
-- `service/` - Business logic
-- `repository/` - Data access
+- `service/` - Business logic interfaces
+- `service/impl/` - Service implementations
+- `repository/` - Data access (Spring Data JPA/MongoDB)
 - `dto/request/` - Request DTOs
 - `dto/response/` - Response DTOs
 
@@ -309,6 +314,61 @@ See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for complete API refe
 - `docs/API_DOCUMENTATION.md` - Complete API reference
 
 **Configuration:**
-- `application.yaml` - Spring Boot configuration (uses `${VARIABLE_NAME}` placeholders)
-- `DotEnvConfig.java` - Loads `.env` before Spring context
+- `src/main/resources/application.yaml` - Spring Boot configuration (uses `${VARIABLE_NAME}` placeholders)
+- `src/main/java/com/FreelancerUp/config/DotEnvConfig.java` - Loads `.env` before Spring context
 - `.env` - Environment variables (NOT in git - see `.env.example`)
+
+**Code Change Protocol:**
+- `docs/.clauderc` - Risk classification system for code changes (Type A/B/C)
+
+## Development Workflow
+
+### Full Stack Development
+
+**Starting both backend and frontend:**
+```bash
+# Terminal 1 - Backend
+cd FreelancerUp-BE
+./mvnw spring-boot:run
+
+# Terminal 2 - Frontend
+cd FreelancerUp-FE
+pnpm dev
+```
+
+**Backend**: http://localhost:8081
+**Frontend**: http://localhost:3000
+**Swagger UI**: http://localhost:8081/swagger-ui/index.html
+
+### Common Development Tasks
+
+**Adding a new feature module:**
+1. Create package structure under `com.FreelancerUp.feature.{featureName}/`
+2. Add entities/documents to `model/`
+3. Create repository interface extending `JpaRepository` or `MongoRepository`
+4. Create service interface and implementation
+5. Create controller with `@RestController` and `@RequestMapping("/api/v1/{featureName}")`
+6. Create request/response DTOs
+7. Add validation annotations
+8. Write unit tests
+
+**Implementing cross-database operations:**
+1. Query MongoDB first (for document data)
+2. Query PostgreSQL for relational entities
+3. Combine results into DTO
+4. No cross-database foreign keys - use application-level joins
+
+**Adding caching to a service:**
+1. Inject `RedisCacheService`
+2. Use cache-aside pattern (try cache → query DB → populate cache)
+3. Invalidate cache on updates/deletes
+4. Use appropriate TTL (sessions: 7d, profiles: 1h, listings: 15min)
+
+## Common Gotchas
+
+1. **Package name**: Use `com.FreelancerUp` (not `com.dev`)
+2. **Environment variables**: Must use `.env` file, not system environment
+3. **Cross-database queries**: No foreign keys between PostgreSQL and MongoDB
+4. **Payment operations**: Always use `@Transactional` for wallet updates
+5. **Maven wrapper**: Use `./mvnw` (not `mvn`) for consistency
+6. **Service layer**: Always use interfaces + implementations (service/ + service/impl/)
