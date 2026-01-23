@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **FreelancerUp** is a freelancer marketplace platform built with Spring Boot 4.0.1 and Java 17. The platform connects clients with freelancers, featuring project posting, bidding, secure escrow payments, real-time messaging, and reputation systems.
 
 ### Technology Stack
+
 - **Framework**: Spring Boot 4.0.1
 - **Java**: 17
 - **Build Tool**: Maven (with wrapper)
@@ -22,6 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **CRITICAL**: Always follow `/docs/.clauderc` protocol for ALL code changes:
 
 **Risk Classification:**
+
 - **Type A** (Safe): New files, comments, tests, isolated config → Apply immediately
 - **Type B** (Risky): Logic changes, refactoring → Show diff, await approval
 - **Type C** (Dangerous): Breaking changes, schema mods → Full impact analysis
@@ -41,6 +43,7 @@ SPRING_DATA_REDIS_URI=rediss://default:password@host:6379
 ```
 
 **Security Rules (MANDATORY):**
+
 - ✓ NEVER commit actual credentials to git
 - ✓ `.env` file must be in `.gitignore`
 - ✓ Use placeholder `${VARIABLE_NAME}` in `application.yaml`
@@ -48,12 +51,14 @@ SPRING_DATA_REDIS_URI=rediss://default:password@host:6379
 - ✗ NEVER hardcode passwords, tokens, or API keys
 
 **Configuration Loading Order:**
+
 1. `DotEnvConfig.java` static block loads `.env`
 2. Sets `System.setProperty()` for each variable
 3. Spring Boot reads from system properties
 4. `application.yaml` references via `${VARIABLE_NAME}`
 
 ### Building and Running
+
 ```bash
 # Clean build
 ./mvnw clean install
@@ -69,6 +74,7 @@ SPRING_DATA_REDIS_URI=rediss://default:password@host:6379
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 ./mvnw test
@@ -86,6 +92,7 @@ SPRING_DATA_REDIS_URI=rediss://default:password@host:6379
 ```
 
 ### Docker
+
 ```bash
 # Note: No docker-compose.yml exists in current setup
 # Use external database services (Supabase, MongoDB Atlas, Upstash)
@@ -99,32 +106,39 @@ docker exec -it <container_name> psql -U postgres -d freelancerup \
 ## Architecture
 
 ### Polyglot Persistence
+
 The application uses three databases for different data types:
 
 **PostgreSQL** - Transactional/Relational Data (ACID compliance required)
+
 - `users`, `clients`, `wallets`, `transactions`
 - `payments`, `contracts`, `reviews`, `conversations`
 - All financial operations must use `@Transactional` annotation
 
 **MongoDB** - Flexible/Document Data
+
 - `projects`, `bids`, `messages`
 - `freelancers`, `experiences`, `education`
 - Fast document reads, nested data structures
 
 **Redis** - Caching Layer
+
 - User sessions (TTL: 7 days)
 - User profiles (TTL: 1 hour)
 - Project listings (TTL: 15 minutes)
 - Online users tracking
 
 ### Cross-Database Operations
+
 When data spans multiple databases:
+
 1. Query MongoDB first (faster for documents)
 2. Query PostgreSQL for related entities
 3. Combine into DTO for response
 4. Use application-level joins (no cross-database foreign keys)
 
 Example from docs/PLANE.md:
+
 ```java
 public ProjectDetailDTO getProjectDetail(String projectId) {
     // 1. Get project from MongoDB
@@ -173,6 +187,7 @@ com.FreelancerUp/
 ```
 
 Each feature module contains:
+
 - `controller/` - REST endpoints
 - `service/` - Business logic interfaces
 - `service/impl/` - Service implementations
@@ -183,9 +198,11 @@ Each feature module contains:
 ## Critical Implementation Notes
 
 ### Payment System (Phase 7)
+
 The payment/escrow system is the most critical component:
 
 **All payment operations MUST:**
+
 1. Use `@Transactional` annotation
 2. Perform atomic wallet updates
 3. Follow double-entry accounting (credit = debit)
@@ -193,6 +210,7 @@ The payment/escrow system is the most critical component:
 5. Have thorough test coverage
 
 **Escrow Flow:**
+
 ```
 Fund Escrow: Client Wallet → Escrow → ESCROW_HOLD transaction
 Release Payment: Escrow → Freelancer Wallet → ESCROW_RELEASE transaction
@@ -202,19 +220,23 @@ Refund: Escrow → Client Wallet → REFUNDED status
 See docs/PLANE.md Phase 7 for detailed implementation.
 
 ### Cache Strategy
+
 Use Cache-Aside pattern:
+
 1. Try Redis cache first
 2. Query database on cache miss
 3. Populate cache with result
 4. Invalidate cache on updates
 
 Cache keys:
+
 - `session:{refreshToken}` - User sessions
 - `profile:{userId}` - User profiles
 - `projects:list:{filters_hash}` - Project search results
 - `online:users` - Set of online user IDs
 
 ### Transaction Management
+
 ```java
 // CRITICAL for all PostgreSQL operations
 @Service
@@ -232,6 +254,7 @@ public class PaymentService {
 **Current Phase**: Backend Module Implementation (Entities, Repositories, Services, Controllers)
 
 ### Completed Modules
+
 - ✅ **Entities & Documents**: PostgreSQL entities and MongoDB documents defined
 - ✅ **Repositories**: PostgreSQL and MongoDB repository interfaces
 - ✅ **Client Module**: Registration, profile management, statistics
@@ -239,10 +262,12 @@ public class PaymentService {
 - ✅ **Bid Module**: Bid submission, acceptance, rejection, withdrawal
 
 ### Partially Implemented
+
 - 🚧 **Cache Service**: [RedisCacheService.java](src/main/java/com/FreelancerUp/cache/RedisCacheService.java) stub exists (Phase 11)
 - 🚧 **Security**: JWT configuration ready, auth filters pending
 
 ### Pending Modules
+
 - ❌ **Payment/Escrow**: Critical system - requires `@Transactional` operations
 - ❌ **Contract**: Auto-contract creation on bid acceptance
 - ❌ **Chat**: Real-time messaging
@@ -260,9 +285,10 @@ Per [docs/.clauderc](docs/.clauderc), follow risk classification for ALL changes
 
 ## API Documentation
 
-Access Swagger UI at: `http://localhost:8081/swagger-ui/index.html`
+Access Swagger UI at: `http://localhost:8080/swagger-ui/index.html`
 
 See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for complete API reference including:
+
 - Authentication (JWT Bearer tokens)
 - Request/response formats
 - Pagination parameters
@@ -270,11 +296,13 @@ See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for complete API refe
 - Example requests
 
 **Endpoint conventions:**
+
 - `/api/v1/{resource}` - Standard CRUD endpoints
 - `/api/v1/{resource}/search` - Search/filter endpoints
 - Use `@PreAuthorize` for role-based access control
 
 **Common roles:**
+
 - `USER` - Basic registered user
 - `CLIENT` - Client role (can post projects)
 - `FREELANCER` - Freelancer role (can bid on projects)
@@ -282,30 +310,36 @@ See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for complete API refe
 ## Entity Relationships
 
 **User** (base entity in PostgreSQL)
+
 - `Client` extends User (company info, payment methods)
 - `Freelancer` document in MongoDB (skills, experience, rates)
 
 **Project** (MongoDB)
+
 - `clientId` → PostgreSQL users.id
 - `freelancerId` → PostgreSQL users.id (nullable)
 - `contractId` → PostgreSQL contracts.id
 
 **Bid** (MongoDB)
-- `projectId` → MongoDB projects._id
+
+- `projectId` → MongoDB projects.\_id
 - `freelancerId` → PostgreSQL users.id
 
 **Payment** (PostgreSQL)
-- `projectId` → MongoDB projects._id
+
+- `projectId` → MongoDB projects.\_id
 - `from_user_id` → PostgreSQL users.id (client)
 - `to_user_id` → PostgreSQL users.id (freelancer)
 
 ## Important Files
 
 **Implementation Planning:**
+
 - `docs/PLANE.md` - Detailed 8-week implementation plan with code examples
 - `docs/IMPLEMENTATION_SUMMARY.md` - Current implementation status
 
 **Design Documentation:**
+
 - `docs/DATABASE_SCHEMA.md` - Complete database schema and relationships
 - `docs/CLASS.md` - UML class diagrams for all entities
 - `docs/USECASE.md` - Use case diagrams
@@ -314,11 +348,13 @@ See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for complete API refe
 - `docs/API_DOCUMENTATION.md` - Complete API reference
 
 **Configuration:**
+
 - `src/main/resources/application.yaml` - Spring Boot configuration (uses `${VARIABLE_NAME}` placeholders)
 - `src/main/java/com/FreelancerUp/config/DotEnvConfig.java` - Loads `.env` before Spring context
 - `.env` - Environment variables (NOT in git - see `.env.example`)
 
 **Code Change Protocol:**
+
 - `docs/.clauderc` - Risk classification system for code changes (Type A/B/C)
 
 ## Development Workflow
@@ -326,6 +362,7 @@ See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for complete API refe
 ### Full Stack Development
 
 **Starting both backend and frontend:**
+
 ```bash
 # Terminal 1 - Backend
 cd FreelancerUp-BE
@@ -336,13 +373,14 @@ cd FreelancerUp-FE
 pnpm dev
 ```
 
-**Backend**: http://localhost:8081
+**Backend**: http://localhost:8080
 **Frontend**: http://localhost:3000
-**Swagger UI**: http://localhost:8081/swagger-ui/index.html
+**Swagger UI**: http://localhost:8080/swagger-ui/index.html
 
 ### Common Development Tasks
 
 **Adding a new feature module:**
+
 1. Create package structure under `com.FreelancerUp.feature.{featureName}/`
 2. Add entities/documents to `model/`
 3. Create repository interface extending `JpaRepository` or `MongoRepository`
@@ -353,12 +391,14 @@ pnpm dev
 8. Write unit tests
 
 **Implementing cross-database operations:**
+
 1. Query MongoDB first (for document data)
 2. Query PostgreSQL for relational entities
 3. Combine results into DTO
 4. No cross-database foreign keys - use application-level joins
 
 **Adding caching to a service:**
+
 1. Inject `RedisCacheService`
 2. Use cache-aside pattern (try cache → query DB → populate cache)
 3. Invalidate cache on updates/deletes

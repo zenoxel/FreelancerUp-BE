@@ -38,6 +38,7 @@ FreelancerUp/
 ### 1. **Documentation (MVP Scope)**
 
 #### Backend Documentation (`FreelancerUp-BE/docs/`)
+
 - ✅ **[MVP_SCOPE.md](MVP_SCOPE.md)** - Complete MVP roadmap
   - 9 modules with timeline (8 weeks)
   - API endpoints for each module
@@ -61,6 +62,7 @@ FreelancerUp/
 - ✅ **[SEQUENCE_CLIENT.md](SEQUENCE_CLIENT.md)** - 7 phases (down from 8)
 
 #### Frontend Documentation (`FreelancerUp-FE/`)
+
 - ✅ **[CLAUDE.md](../FreelancerUp-FE/CLAUDE.md)** - Frontend-specific guidance
   - Next.js 16 App Router patterns
   - Component organization
@@ -71,6 +73,7 @@ FreelancerUp/
 ### 2. **Backend Setup**
 
 #### Infrastructure (`FreelancerUp-BE/`)
+
 - ✅ **[docker-compose.yml](docker-compose.yml)** - Multi-service setup
   - PostgreSQL 16
   - MongoDB 8.0
@@ -89,10 +92,12 @@ FreelancerUp/
 - ✅ **[.env.example](.env.example)** - Environment template
 
 #### Implemented Modules
+
 - ✅ **Authentication** - JWT-based auth, role-based access
 - ✅ **Freelancer Profile** - Extended profile (MongoDB)
 
 #### Package Structure
+
 ```
 com.dev/
 ├── config/           # Security, Database, ModelMapper, OpenAPI
@@ -113,6 +118,7 @@ com.dev/
 ### 3. **Frontend Setup**
 
 #### Project Configuration (`FreelancerUp-FE/`)
+
 - ✅ **[package.json](../FreelancerUp-FE/package.json)** - Dependencies
   - Next.js 16.1.1
   - React 19.2.3
@@ -126,6 +132,7 @@ com.dev/
 - ✅ **[components.json](../FreelancerUp-FE/components.json)** - shadcn/ui config
 
 #### Basic Structure
+
 ```
 FreelancerUp-FE/
 ├── app/
@@ -145,6 +152,7 @@ FreelancerUp-FE/
 ## 🗄️ Database Architecture (MVP)
 
 ### PostgreSQL Tables (8 tables)
+
 ```sql
 users          -- Core user data
 clients        -- Client-specific data
@@ -157,6 +165,7 @@ conversations  -- Message conversation threads
 ```
 
 ### MongoDB Collections (6 collections)
+
 ```javascript
 freelancers    -- Extended freelancer profiles
 experiences    -- Work experience history
@@ -167,6 +176,7 @@ messages       -- Chat messages
 ```
 
 ### Redis Patterns (4 patterns)
+
 ```redis
 session:{token}       -- User sessions (TTL: 7 days)
 profile:{userId}      -- Profile cache (TTL: 1 hour)
@@ -188,10 +198,11 @@ docker compose up -d --build
 ```
 
 This will start:
+
 - PostgreSQL on port 5432
 - MongoDB on port 27017
 - Redis on port 6379
-- Spring Boot app on port 8081
+- Spring Boot app on port 8080
 
 ### 2. Verify Services
 
@@ -223,8 +234,8 @@ spring:
 
 ### 4. Access Application
 
-- **API**: http://localhost:8081
-- **Swagger UI**: http://localhost:8081/swagger-ui/index.html
+- **API**: http://localhost:8080
+- **Swagger UI**: http://localhost:8080/swagger-ui/index.html
 - **PostgreSQL**: localhost:5432
 - **MongoDB**: localhost:27017
 - **Redis**: localhost:6379
@@ -236,6 +247,7 @@ spring:
 ### Phase 1: Core Entities (Priority 1)
 
 #### PostgreSQL Entities
+
 ```java
 // model/entity/User.java
 @Entity
@@ -271,6 +283,7 @@ public class Wallet {
 ```
 
 #### MongoDB Documents
+
 ```java
 // model/document/Freelancer.java
 @Document(collection = "freelancers")
@@ -401,21 +414,25 @@ spring:
 ## 📈 Benefits of This Architecture
 
 ### ✅ Performance
+
 - **PostgreSQL**: ACID transactions ensure data consistency
 - **MongoDB**: Fast document reads for profile data
 - **Redis**: Sub-millisecond cache access
 
 ### ✅ Scalability
+
 - **PostgreSQL**: Read replicas for analytics
 - **MongoDB**: Horizontal sharding by user_id
 - **Redis**: Cluster for distributed caching
 
 ### ✅ Flexibility
+
 - **PostgreSQL**: Strong schema for critical data
 - **MongoDB**: Flexible schema for evolving profiles
 - **Redis**: TTL-based auto-expiration
 
 ### ✅ Reliability
+
 - **PostgreSQL**: WAL (Write-Ahead Logging) for durability
 - **MongoDB**: Replica sets for high availability
 - **Redis**: Persistence with AOF enabled
@@ -425,12 +442,14 @@ spring:
 ## 🛠️ Development Workflow
 
 ### 1. Make Changes to Code
+
 ```bash
 # Hot reload works for mounted volume
 # Changes in src/ are reflected immediately
 ```
 
 ### 2. View Logs
+
 ```bash
 cd FreelancerUp-FE
 
@@ -438,7 +457,7 @@ cd FreelancerUp-FE
 npm install
 
 # Create .env.local
-echo "NEXT_PUBLIC_API_URL=http://localhost:8081/api/v1" > .env.local
+echo "NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1" > .env.local
 
 # Run development server
 npm run dev
@@ -452,18 +471,21 @@ open http://localhost:3000
 ## 📦 Deployment
 
 ### Docker Compose (Backend + Databases)
+
 ```bash
 cd FreelancerUp-BE
 docker compose up -d --build
 ```
 
 Services:
+
 - PostgreSQL: `localhost:5432`
 - MongoDB: `localhost:27017`
 - Redis: `localhost:6379`
-- Spring Boot API: `localhost:8081`
+- Spring Boot API: `localhost:8080`
 
 ### Frontend (Development)
+
 ```bash
 cd FreelancerUp-FE
 npm run dev
@@ -471,6 +493,7 @@ npm run dev
 ```
 
 ### Frontend (Production)
+
 ```bash
 cd FreelancerUp-FE
 npm run build
@@ -483,12 +506,14 @@ npm start
 ## ⚠️ Important Notes
 
 ### For AI Assistants
+
 1. **Always read CLAUDE.md** (BE or FE) before making changes
 2. **Always check docs/** for MVP scope and requirements
 3. **Update docs/** when changing architecture or adding features
 4. **Follow MVP scope** - don't add features beyond scope
 
 ### For Backend Development
+
 1. **Never commit** `.env`, `.git/`, `target/`
 2. **Test payment operations** thoroughly
 3. **Use @Transactional** for PostgreSQL operations
@@ -496,6 +521,7 @@ npm start
 5. **Follow package structure**: feature/{module}/controller|service|repository|dto
 
 ### For Frontend Development
+
 1. **Never commit** `.env.local`, `.next/`, `node_modules/`
 2. **Use TypeScript** for all new files
 3. **Follow App Router conventions** (not Pages Router)
@@ -503,6 +529,7 @@ npm start
 5. **Use Server Components** by default
 
 ### Git Workflow
+
 - **Branch naming**: `feature/`, `fix/`, `refactor/`, `docs/`
 - **Commit messages**: Conventional Commits (feat:, fix:, docs:, etc.)
 - **Read docs/** before implementing new features
@@ -512,6 +539,7 @@ npm start
 ## 📊 Progress Tracking
 
 ### Backend Status
+
 - ✅ Authentication (JWT, role-based access)
 - ✅ Freelancer Profile (basic CRUD)
 - 🚧 Client Profile (to be implemented)
@@ -522,6 +550,7 @@ npm start
 - ❌ Review System (to be implemented)
 
 ### Frontend Status
+
 - ✅ Basic Setup (Next.js 16, React 19, Tailwind)
 - ✅ Auth Pages (Login/Register basic UI)
 - ❌ API Integration (to be implemented)
@@ -535,12 +564,14 @@ npm start
 ## 🆘 Resources
 
 ### Backend
+
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
 - [Spring Data JPA](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
 - [Spring Data MongoDB](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/)
 - [Spring Data Redis](https://docs.spring.io/spring-data/redis/docs/current/reference/html/)
 
 ### Frontend
+
 - [Next.js 16 Documentation](https://nextjs.org/docs)
 - [React 19 Documentation](https://react.dev)
 - [Tailwind CSS](https://tailwindcss.com/docs)
