@@ -50,8 +50,9 @@ public class ProjectController {
     @GetMapping("/search")
     @PreAuthorize("permitAll()")
     @Operation(summary = "Search projects", description = "Search and filter projects with pagination")
-    public ResponseEntity<Page<ProjectResponse>> searchProjects(ProjectSearchRequest request) {
-        log.info("REST request to search projects with filters: {}", request.getKeyword());
+    public ResponseEntity<Page<ProjectResponse>> searchProjects(@ModelAttribute ProjectSearchRequest request) {
+        log.info("REST request to search projects with filters: keyword={}, skills={}, type={}, statuses={}",
+                request.getKeyword(), request.getSkills(), request.getType(), request.getStatuses());
         Page<ProjectResponse> response = projectService.searchProjects(request);
         return ResponseEntity.ok(response);
     }

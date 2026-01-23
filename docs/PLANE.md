@@ -13,14 +13,17 @@
 ## 🎯 Implementation Phases
 
 ### Phase 1: Core Entities (PostgreSQL) ⭐ Priority 1
+
 **Duration**: 3-4 days | **Week**: 1
 
 #### Objective
+
 Create all PostgreSQL entity classes for transactional data.
 
 #### Tasks
 
 ##### 1.1 Client Entity
+
 **File**: `src/main/java/com/dev/model/entity/Client.java`
 
 ```java
@@ -55,6 +58,7 @@ public class Client {
 ```
 
 **Fields**:
+
 - `id` (UUID) - References users.id
 - `companyName` (VARCHAR 255)
 - `industry` (VARCHAR 100)
@@ -66,6 +70,7 @@ public class Client {
 ---
 
 ##### 1.2 Wallet Entity
+
 **File**: `src/main/java/com/dev/model/entity/Wallet.java`
 
 ```java
@@ -101,6 +106,7 @@ public class Wallet {
 ```
 
 **Fields**:
+
 - `id` (UUID)
 - `userId` (UUID FK → users.id)
 - `balance` (DECIMAL 15,2) - Available balance
@@ -111,6 +117,7 @@ public class Wallet {
 ---
 
 ##### 1.3 Transaction Entity
+
 **File**: `src/main/java/com/dev/model/entity/Transaction.java`
 
 ```java
@@ -159,12 +166,14 @@ public class Transaction {
 ```
 
 **Enums**:
+
 - `TransactionType`: CREDIT, DEBIT, ESCROW_HOLD, ESCROW_RELEASE
 - `TransactionStatus`: PENDING, COMPLETED, FAILED
 
 ---
 
 ##### 1.4 Payment Entity
+
 **File**: `src/main/java/com/dev/model/entity/Payment.java`
 
 ```java
@@ -222,6 +231,7 @@ public class Payment {
 ```
 
 **Enums**:
+
 - `PaymentType`: FINAL, REFUND
 - `PaymentStatus`: PENDING, ESCROW_HOLD, RELEASED, COMPLETED, REFUNDED, FAILED
 - `PaymentMethod`: CREDIT_CARD, PAYPAL, BANK_TRANSFER, WALLET
@@ -229,6 +239,7 @@ public class Payment {
 ---
 
 ##### 1.5 Contract Entity
+
 **File**: `src/main/java/com/dev/model/entity/Contract.java`
 
 ```java
@@ -264,11 +275,13 @@ public class Contract {
 ```
 
 **Enums**:
+
 - `ContractStatus`: ACTIVE, COMPLETED
 
 ---
 
 ##### 1.6 Review Entity
+
 **File**: `src/main/java/com/dev/model/entity/Review.java`
 
 ```java
@@ -319,12 +332,14 @@ public class Review {
 ```
 
 **Validation**:
+
 - `rating`: 1-5 (CHECK constraint)
 - Unique combination: (from_user_id, to_user_id, project_id)
 
 ---
 
 ##### 1.7 Conversation Entity
+
 **File**: `src/main/java/com/dev/model/entity/Conversation.java`
 
 ```java
@@ -362,12 +377,14 @@ public class Conversation {
 ---
 
 #### Deliverables
+
 - ✅ All 7 entity classes created
 - ✅ Enums defined (Role, CompanySize, TransactionType, PaymentStatus, etc.)
 - ✅ JPA annotations properly configured
 - ✅ Lombok annotations for boilerplate reduction
 
 #### Testing
+
 ```bash
 ./mvnw test -Dtest=EntityTest
 ```
@@ -375,14 +392,17 @@ public class Conversation {
 ---
 
 ### Phase 2: MongoDB Documents ⭐ Priority 1
+
 **Duration**: 2-3 days | **Week**: 1
 
 #### Objective
+
 Create all MongoDB document classes for flexible, document-based data.
 
 #### Tasks
 
 ##### 2.1 Project Document (Update)
+
 **File**: `src/main/java/com/dev/model/document/Project.java`
 
 ```java
@@ -435,12 +455,14 @@ class ProjectBudget {
 ```
 
 **Enums**:
+
 - `ProjectStatus`: OPEN, IN_PROGRESS, COMPLETED
 - `ProjectType`: FIXED_PRICE, HOURLY
 
 ---
 
 ##### 2.2 Bid Document
+
 **File**: `src/main/java/com/dev/model/document/Bid.java`
 
 ```java
@@ -472,11 +494,13 @@ public class Bid {
 ```
 
 **Enums**:
+
 - `BidStatus`: PENDING, ACCEPTED, REJECTED
 
 ---
 
 ##### 2.3 Message Document
+
 **File**: `src/main/java/com/dev/model/document/Message.java`
 
 ```java
@@ -513,6 +537,7 @@ public class Message {
 ---
 
 ##### 2.4 Experience Document
+
 **File**: `src/main/java/com/dev/model/document/Experience.java`
 
 ```java
@@ -547,6 +572,7 @@ public class Experience {
 ---
 
 ##### 2.5 Education Document
+
 **File**: `src/main/java/com/dev/model/document/Education.java`
 
 ```java
@@ -578,6 +604,7 @@ public class Education {
 ---
 
 ##### 2.6 Freelancer Document (Update)
+
 **File**: `src/main/java/com/dev/model/document/Freelancer.java`
 
 ```java
@@ -625,12 +652,14 @@ enum ProficiencyLevel { BEGINNER, INTERMEDIATE, ADVANCED, EXPERT }
 ---
 
 #### Deliverables
+
 - ✅ All 6 document classes created
 - ✅ MongoDB annotations properly configured
 - ✅ Embedded classes for complex data structures
 - ✅ Index definitions (via @Indexed annotation or repository methods)
 
 #### Testing
+
 ```bash
 ./mvnw test -Dtest=DocumentTest
 ```
@@ -638,9 +667,11 @@ enum ProficiencyLevel { BEGINNER, INTERMEDIATE, ADVANCED, EXPERT }
 ---
 
 ### Phase 3: Repository Layer ⭐ Priority 1
+
 **Duration**: 2-3 days | **Week**: 2
 
 #### Objective
+
 Create repository interfaces for both PostgreSQL and MongoDB.
 
 #### Tasks
@@ -648,6 +679,7 @@ Create repository interfaces for both PostgreSQL and MongoDB.
 ##### 3.1 PostgreSQL Repositories
 
 ###### ClientRepository
+
 **File**: `src/main/java/com/dev/feature/client/repository/ClientRepository.java`
 
 ```java
@@ -667,6 +699,7 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
 ---
 
 ###### WalletRepository
+
 **File**: `src/main/java/com/dev/feature/payment/repository/WalletRepository.java`
 
 ```java
@@ -691,6 +724,7 @@ public interface WalletRepository extends JpaRepository<Wallet, UUID> {
 ---
 
 ###### TransactionRepository
+
 **File**: `src/main/java/com/dev/feature/payment/repository/TransactionRepository.java`
 
 ```java
@@ -722,6 +756,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 ---
 
 ###### PaymentRepository
+
 **File**: `src/main/java/com/dev/feature/payment/repository/PaymentRepository.java`
 
 ```java
@@ -752,6 +787,7 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 ---
 
 ###### ContractRepository
+
 **File**: `src/main/java/com/dev/feature/contract/repository/ContractRepository.java`
 
 ```java
@@ -775,6 +811,7 @@ public interface ContractRepository extends JpaRepository<Contract, UUID> {
 ---
 
 ###### ReviewRepository
+
 **File**: `src/main/java/com/dev/feature/review/repository/ReviewRepository.java`
 
 ```java
@@ -800,6 +837,7 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
 ---
 
 ###### ConversationRepository
+
 **File**: `src/main/java/com/dev/feature/chat/repository/ConversationRepository.java`
 
 ```java
@@ -826,6 +864,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, UUID
 ##### 3.2 MongoDB Repositories
 
 ###### ProjectRepository
+
 **File**: `src/main/java/com/dev/feature/project/repository/ProjectRepository.java`
 
 ```java
@@ -878,6 +917,7 @@ public interface ProjectRepository extends MongoRepository<Project, String> {
 ---
 
 ###### BidRepository
+
 **File**: `src/main/java/com/dev/feature/bid/repository/BidRepository.java`
 
 ```java
@@ -905,6 +945,7 @@ public interface BidRepository extends MongoRepository<Bid, String> {
 ---
 
 ###### MessageRepository
+
 **File**: `src/main/java/com/dev/feature/chat/repository/MessageRepository.java`
 
 ```java
@@ -935,6 +976,7 @@ public interface MessageRepository extends MongoRepository<Message, String> {
 ---
 
 ###### FreelancerRepository
+
 **File**: `src/main/java/com/dev/feature/freelancer/repository/FreelancerRepository.java`
 
 ```java
@@ -972,6 +1014,7 @@ public interface FreelancerRepository extends MongoRepository<Freelancer, String
 ---
 
 ###### ExperienceRepository
+
 **File**: `src/main/java/com/dev/feature/freelancer/repository/ExperienceRepository.java`
 
 ```java
@@ -990,6 +1033,7 @@ public interface ExperienceRepository extends MongoRepository<Experience, String
 ---
 
 ###### EducationRepository
+
 **File**: `src/main/java/com/dev/feature/freelancer/repository/EducationRepository.java`
 
 ```java
@@ -1006,12 +1050,14 @@ public interface EducationRepository extends MongoRepository<Education, String> 
 ---
 
 #### Deliverables
+
 - ✅ 7 PostgreSQL repository interfaces
 - ✅ 6 MongoDB repository interfaces
 - ✅ Custom queries for complex operations
 - ✅ Proper indexing strategies
 
 #### Testing
+
 ```bash
 ./mvnw test -Dtest=RepositoryTest
 ```
@@ -1019,12 +1065,15 @@ public interface EducationRepository extends MongoRepository<Education, String> 
 ---
 
 ### Phase 4: Client Module ⭐⭐ Priority 2
+
 **Duration**: 2-3 days | **Week**: 2-3
 
 #### Objective
+
 Build complete Client feature module (profile management).
 
 #### Package Structure
+
 ```
 com/dev/feature/client/
 ├── controller/
@@ -1051,6 +1100,7 @@ com/dev/feature/client/
 ##### 4.1 Create DTOs
 
 ###### RegisterClientRequest
+
 **File**: `src/main/java/com/dev/feature/client/dto/request/RegisterClientRequest.java`
 
 ```java
@@ -1074,6 +1124,7 @@ public class RegisterClientRequest {
 ---
 
 ###### UpdateClientProfileRequest
+
 **File**: `src/main/java/com/dev/feature/client/dto/request/UpdateClientProfileRequest.java`
 
 ```java
@@ -1096,6 +1147,7 @@ public class UpdateClientProfileRequest {
 ---
 
 ###### ClientProfileResponse
+
 **File**: `src/main/java/com/dev/feature/client/dto/response/ClientProfileResponse.java`
 
 ```java
@@ -1125,6 +1177,7 @@ public class ClientProfileResponse {
 ---
 
 ###### ClientStatsResponse
+
 **File**: `src/main/java/com/dev/feature/client/dto/response/ClientStatsResponse.java`
 
 ```java
@@ -1154,6 +1207,7 @@ public class ClientStatsResponse {
 ##### 4.2 Create Service
 
 ###### ClientService Interface
+
 **File**: `src/main/java/com/dev/feature/client/service/ClientService.java`
 
 ```java
@@ -1174,6 +1228,7 @@ public interface ClientService {
 ---
 
 ###### ClientServiceImpl
+
 **File**: `src/main/java/com/dev/feature/client/service/impl/ClientServiceImpl.java`
 
 ```java
@@ -1321,6 +1376,7 @@ public class ClientServiceImpl implements ClientService {
 ##### 4.3 Create Controller
 
 ###### ClientController
+
 **File**: `src/main/java/com/dev/feature/client/controller/ClientController.java`
 
 ```java
@@ -1394,6 +1450,7 @@ public class ClientController {
 ---
 
 #### Deliverables
+
 - ✅ Client DTOs (request/response)
 - ✅ ClientService interface + implementation
 - ✅ ClientController with all endpoints
@@ -1401,15 +1458,17 @@ public class ClientController {
 - ✅ Integration tests
 
 #### API Endpoints
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/v1/clients/register` | Register as client | USER |
-| GET | `/api/v1/clients/profile` | Get profile | CLIENT |
-| PUT | `/api/v1/clients/profile` | Update profile | CLIENT |
-| GET | `/api/v1/clients/stats` | Get statistics | CLIENT |
-| DELETE | `/api/v1/clients/profile` | Delete profile | CLIENT |
+
+| Method | Endpoint                   | Description        | Auth   |
+| ------ | -------------------------- | ------------------ | ------ |
+| POST   | `/api/v1/clients/register` | Register as client | USER   |
+| GET    | `/api/v1/clients/profile`  | Get profile        | CLIENT |
+| PUT    | `/api/v1/clients/profile`  | Update profile     | CLIENT |
+| GET    | `/api/v1/clients/stats`    | Get statistics     | CLIENT |
+| DELETE | `/api/v1/clients/profile`  | Delete profile     | CLIENT |
 
 #### Testing
+
 ```bash
 # Run client module tests
 ./mvnw test -Dtest=ClientControllerTest
@@ -1419,12 +1478,15 @@ public class ClientController {
 ---
 
 ### Phase 5: Project Module ⭐⭐ Priority 2
+
 **Duration**: 3-4 days | **Week**: 3-4
 
 #### Objective
+
 Build complete Project feature module with search/filter capabilities.
 
 #### Package Structure
+
 ```
 com/dev/feature/project/
 ├── controller/
@@ -1452,6 +1514,7 @@ com/dev/feature/project/
 ##### 5.1 Create DTOs
 
 ###### CreateProjectRequest
+
 ```java
 @Data @Schema(description = "Create project request")
 public class CreateProjectRequest {
@@ -1489,6 +1552,7 @@ public class CreateProjectRequest {
 ---
 
 ###### ProjectSearchRequest
+
 ```java
 @Data @Schema(description = "Project search request")
 public class ProjectSearchRequest {
@@ -1786,6 +1850,7 @@ public class ProjectController {
 ---
 
 #### Deliverables
+
 - ✅ Project DTOs (request/response)
 - ✅ ProjectService with cross-database operations
 - ✅ ProjectController with all endpoints
@@ -1794,23 +1859,27 @@ public class ProjectController {
 - ✅ Integration tests
 
 #### API Endpoints
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/v1/projects` | Create project | CLIENT |
-| GET | `/api/v1/projects/search` | Search/filter projects | Public |
-| GET | `/api/v1/projects/{id}` | Get project details | Public |
-| PATCH | `/api/v1/projects/{id}/status` | Update status | CLIENT/FREELANCER |
-| DELETE | `/api/v1/projects/{id}` | Delete project | CLIENT |
+
+| Method | Endpoint                       | Description            | Auth              |
+| ------ | ------------------------------ | ---------------------- | ----------------- |
+| POST   | `/api/v1/projects`             | Create project         | CLIENT            |
+| GET    | `/api/v1/projects/search`      | Search/filter projects | Public            |
+| GET    | `/api/v1/projects/{id}`        | Get project details    | Public            |
+| PATCH  | `/api/v1/projects/{id}/status` | Update status          | CLIENT/FREELANCER |
+| DELETE | `/api/v1/projects/{id}`        | Delete project         | CLIENT            |
 
 ---
 
 ### Phase 6: Bidding System ⭐⭐⭐ Priority 3
+
 **Duration**: 3-4 days | **Week**: 4-5
 
 #### Objective
+
 Build complete Bidding system with notifications.
 
 #### Package Structure
+
 ```
 com/dev/feature/bid/
 ├── controller/
@@ -1831,6 +1900,7 @@ com/dev/feature/bid/
 ---
 
 #### Key Features
+
 1. Submit bid on project
 2. List bids for project owner
 3. Accept/reject bid
@@ -1841,23 +1911,27 @@ com/dev/feature/bid/
 ---
 
 #### API Endpoints
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/v1/projects/{projectId}/bids` | Submit bid | FREELANCER |
-| GET | `/api/v1/projects/{projectId}/bids` | List bids | CLIENT |
-| PATCH | `/api/v1/bids/{id}/accept` | Accept bid | CLIENT |
-| PATCH | `/api/v1/bids/{id}/reject` | Reject bid | CLIENT |
-| DELETE | `/api/v1/bids/{id}` | Withdraw bid | FREELANCER |
+
+| Method | Endpoint                            | Description  | Auth       |
+| ------ | ----------------------------------- | ------------ | ---------- |
+| POST   | `/api/v1/projects/{projectId}/bids` | Submit bid   | FREELANCER |
+| GET    | `/api/v1/projects/{projectId}/bids` | List bids    | CLIENT     |
+| PATCH  | `/api/v1/bids/{id}/accept`          | Accept bid   | CLIENT     |
+| PATCH  | `/api/v1/bids/{id}/reject`          | Reject bid   | CLIENT     |
+| DELETE | `/api/v1/bids/{id}`                 | Withdraw bid | FREELANCER |
 
 ---
 
 ### Phase 7: Payment & Escrow System ⭐⭐⭐⭐⭐ CRITICAL!
+
 **Duration**: 4-5 days | **Week**: 5-6
 
 #### Objective
+
 Build secure payment system with escrow functionality.
 
 #### Package Structure
+
 ```
 com/dev/feature/payment/
 ├── controller/
@@ -1887,6 +1961,7 @@ com/dev/feature/payment/
 ---
 
 #### CRITICAL REQUIREMENTS
+
 - ⚠️ **All payment operations MUST use `@Transactional`**
 - ⚠️ **Atomic operations for wallet updates**
 - ⚠️ **Double-entry accounting (credit = debit)**
@@ -1898,6 +1973,7 @@ com/dev/feature/payment/
 #### Key Flows
 
 ##### Fund Escrow Flow
+
 ```
 1. Validate wallet balance
 2. DEBIT from client wallet
@@ -1908,6 +1984,7 @@ com/dev/feature/payment/
 ```
 
 ##### Release Payment Flow
+
 ```
 1. Validate payment in ESCROW_HOLD
 2. RELEASE from escrow
@@ -1919,6 +1996,7 @@ com/dev/feature/payment/
 ```
 
 ##### Refund Flow
+
 ```
 1. Validate payment in ESCROW_HOLD
 2. RELEASE from escrow
@@ -1930,17 +2008,19 @@ com/dev/feature/payment/
 ---
 
 #### API Endpoints
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/v1/wallets` | Get wallet balance | USER |
-| GET | `/api/v1/wallets/transactions` | Transaction history | USER |
-| POST | `/api/v1/payments/escrow/fund` | Fund escrow | CLIENT |
-| POST | `/api/v1/payments/escrow/release` | Release payment | CLIENT |
-| POST | `/api/v1/payments/escrow/refund` | Refund payment | SYSTEM |
+
+| Method | Endpoint                          | Description         | Auth   |
+| ------ | --------------------------------- | ------------------- | ------ |
+| GET    | `/api/v1/wallets`                 | Get wallet balance  | USER   |
+| GET    | `/api/v1/wallets/transactions`    | Transaction history | USER   |
+| POST   | `/api/v1/payments/escrow/fund`    | Fund escrow         | CLIENT |
+| POST   | `/api/v1/payments/escrow/release` | Release payment     | CLIENT |
+| POST   | `/api/v1/payments/escrow/refund`  | Refund payment      | SYSTEM |
 
 ---
 
 #### Testing Requirements
+
 ```bash
 # CRITICAL: Run these tests thoroughly
 ./mvnw test -Dtest=PaymentServiceTest
@@ -1958,12 +2038,15 @@ com/dev/feature/payment/
 ---
 
 ### Phase 8: Contract System ⭐⭐ Priority 3
+
 **Duration**: 2-3 days | **Week**: 6
 
 #### Objective
+
 Auto-contract creation and management.
 
 #### Package Structure
+
 ```
 com/dev/feature/contract/
 ├── controller/
@@ -1982,6 +2065,7 @@ com/dev/feature/contract/
 ---
 
 #### Key Features
+
 1. Auto-create contract when bid is accepted
 2. Track contract status (ACTIVE, COMPLETED)
 3. Link contract to project
@@ -1990,12 +2074,15 @@ com/dev/feature/contract/
 ---
 
 ### Phase 9: Chat System ⭐⭐ Priority 2
+
 **Duration**: 3-4 days | **Week**: 6-7
 
 #### Objective
+
 Real-time messaging system with MongoDB + PostgreSQL.
 
 #### Package Structure
+
 ```
 com/dev/feature/chat/
 ├── controller/
@@ -2019,6 +2106,7 @@ com/dev/feature/chat/
 ---
 
 #### Key Features
+
 1. Send/retrieve messages with pagination
 2. Conversation management
 3. Read/unread status tracking
@@ -2027,22 +2115,26 @@ com/dev/feature/chat/
 ---
 
 #### API Endpoints
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/v1/messages` | Send message | USER |
-| GET | `/api/v1/conversations/{id}/messages` | Get messages | USER |
-| GET | `/api/v1/conversations` | List conversations | USER |
-| PATCH | `/api/v1/messages/{id}/read` | Mark as read | USER |
+
+| Method | Endpoint                              | Description        | Auth |
+| ------ | ------------------------------------- | ------------------ | ---- |
+| POST   | `/api/v1/messages`                    | Send message       | USER |
+| GET    | `/api/v1/conversations/{id}/messages` | Get messages       | USER |
+| GET    | `/api/v1/conversations`               | List conversations | USER |
+| PATCH  | `/api/v1/messages/{id}/read`          | Mark as read       | USER |
 
 ---
 
 ### Phase 10: Review System ⭐⭐ Priority 2
+
 **Duration**: 2-3 days | **Week**: 7
 
 #### Objective
+
 Build review system with reputation calculation.
 
 #### Package Structure
+
 ```
 com/dev/feature/review/
 ├── controller/
@@ -2063,6 +2155,7 @@ com/dev/feature/review/
 ---
 
 #### Key Features
+
 1. Submit review (validate: project must be completed)
 2. Retrieve reviews by user/project
 3. Calculate reputation score
@@ -2071,21 +2164,25 @@ com/dev/feature/review/
 ---
 
 #### API Endpoints
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/v1/reviews` | Create review | USER |
-| GET | `/api/v1/reviews/project/{projectId}` | Get project reviews | Public |
-| GET | `/api/v1/reviews/user/{userId}` | Get user reviews | Public |
+
+| Method | Endpoint                              | Description         | Auth   |
+| ------ | ------------------------------------- | ------------------- | ------ |
+| POST   | `/api/v1/reviews`                     | Create review       | USER   |
+| GET    | `/api/v1/reviews/project/{projectId}` | Get project reviews | Public |
+| GET    | `/api/v1/reviews/user/{userId}`       | Get user reviews    | Public |
 
 ---
 
 ### Phase 11: Redis Cache Layer ⭐ Priority 1
+
 **Duration**: 2-3 days | **Week**: 7
 
 #### Objective
+
 Implement caching layer for performance optimization.
 
 #### Package Structure
+
 ```
 com/dev/cache/service/
 └── RedisCacheService.java
@@ -2096,6 +2193,7 @@ com/dev/cache/service/
 #### Cache Patterns
 
 ##### 1. Session Caching
+
 ```java
 // Key: session:{refreshToken}
 // Value: {userId, email, role, createdAt}
@@ -2103,6 +2201,7 @@ com/dev/cache/service/
 ```
 
 ##### 2. Profile Caching
+
 ```java
 // Key: profile:{userId}
 // Value: JSON serialized user profile
@@ -2110,6 +2209,7 @@ com/dev/cache/service/
 ```
 
 ##### 3. Project Listing Cache
+
 ```java
 // Key: projects:list:{filters_hash}
 // Value: Array of project IDs
@@ -2117,6 +2217,7 @@ com/dev/cache/service/
 ```
 
 ##### 4. Online Users
+
 ```java
 // Key: online:users
 // Type: Set
@@ -2126,6 +2227,7 @@ com/dev/cache/service/
 ---
 
 #### Cache Invalidation Strategy
+
 ```
 1. Time-based expiration (TTL)
 2. Event-based invalidation (on update)
@@ -2136,11 +2238,13 @@ com/dev/cache/service/
 ---
 
 ### Phase 12: Security & Validation ⭐⭐⭐ Priority 3
+
 **Duration**: 2-3 days | **Week**: 7
 
 #### Tasks
 
 ##### 12.1 Role-Based Access Control
+
 ```java
 // Add to all controllers
 @PreAuthorize("hasRole('CLIENT')")
@@ -2149,6 +2253,7 @@ com/dev/cache/service/
 ```
 
 ##### 12.2 Input Validation
+
 ```java
 // Add to all DTOs
 @NotBlank, @NotNull, @Size, @Min, @Max, @Pattern, @Email
@@ -2157,6 +2262,7 @@ Custom validators for complex rules
 ```
 
 ##### 12.3 Rate Limiting
+
 ```java
 // Sensitive endpoints
 - Login: 5 attempts per 15 min
@@ -2165,12 +2271,13 @@ Custom validators for complex rules
 ```
 
 ##### 12.4 CORS Configuration
+
 ```yaml
 # application.yaml
 cors:
   allowed-origins: http://localhost:3000,http://localhost:3001
   allowed-methods: GET,POST,PUT,DELETE,PATCH
-  allowed-headers: "*"
+  allowed-headers: '*'
   allow-credentials: true
   max-age: 3600
 ```
@@ -2180,6 +2287,7 @@ cors:
 ## 🎯 Success Criteria
 
 ### Functional Requirements
+
 - ✅ User can register as client/freelancer
 - ✅ Client can post projects
 - ✅ Freelancer can search and bid on projects
@@ -2190,6 +2298,7 @@ cors:
 - ✅ Reputation scores are calculated correctly
 
 ### Non-Functional Requirements
+
 - ✅ API response time < 200ms (p95)
 - ✅ 99.9% uptime for payment operations
 - ✅ All critical operations are transactional
@@ -2198,6 +2307,7 @@ cors:
 - ✅ Comprehensive test coverage (> 80%)
 
 ### Security Requirements
+
 - ✅ JWT-based authentication
 - ✅ Role-based access control
 - ✅ Input validation on all endpoints
@@ -2211,6 +2321,7 @@ cors:
 ## 📝 Notes & Best Practices
 
 ### Cross-Database Operations
+
 ```java
 // Always query MongoDB first (faster for documents)
 // Then query PostgreSQL for related entities
@@ -2247,6 +2358,7 @@ public class ProjectService {
 ```
 
 ### Transaction Management
+
 ```java
 // CRITICAL: Always use @Transactional for PostgreSQL operations
 @Service
@@ -2275,6 +2387,7 @@ public class PaymentService {
 ```
 
 ### Cache Strategy
+
 ```java
 // Cache-Aside pattern
 @Service
@@ -2338,8 +2451,8 @@ docker exec -it freelancerup_postgres psql -U postgres -d freelancerup \
 ./mvnw test
 
 # 5. Access application
-# API: http://localhost:8081
-# Swagger: http://localhost:8081/swagger-ui/index.html
+# API: http://localhost:8080
+# Swagger: http://localhost:8080/swagger-ui/index.html
 ```
 
 ### Development Workflow
@@ -2373,6 +2486,7 @@ git push origin feature/client-module
 ## 📚 Resources
 
 ### Documentation
+
 - [CLAUDE.md](../CLAUDE.md) - Backend-specific guidance
 - [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) - Complete database schema
 - [MVP_SCOPE.md](MVP_SCOPE.md) - MVP features and timeline
@@ -2382,6 +2496,7 @@ git push origin feature/client-module
 - [SEQUENCE_CLIENT.md](SEQUENCE_CLIENT.md) - Client workflows
 
 ### External Resources
+
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
 - [Spring Data JPA](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
 - [Spring Data MongoDB](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/)
