@@ -17,8 +17,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping(value = "/api/v1/clients", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
@@ -34,8 +32,8 @@ public class ClientController {
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody RegisterClientRequest request
     ) {
-        UUID userId = UUID.fromString(userDetails.getUsername());
-        ClientProfileResponse response = clientService.registerClient(userId, request);
+        String email = userDetails.getUsername();
+        ClientProfileResponse response = clientService.registerClient(email, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -45,8 +43,8 @@ public class ClientController {
     public ResponseEntity<ClientProfileResponse> getClientProfile(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        UUID userId = UUID.fromString(userDetails.getUsername());
-        ClientProfileResponse response = clientService.getClientProfile(userId);
+        String email = userDetails.getUsername();
+        ClientProfileResponse response = clientService.getClientProfile(email);
         return ResponseEntity.ok(response);
     }
 
@@ -57,8 +55,8 @@ public class ClientController {
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UpdateClientProfileRequest request
     ) {
-        UUID userId = UUID.fromString(userDetails.getUsername());
-        ClientProfileResponse response = clientService.updateClientProfile(userId, request);
+        String email = userDetails.getUsername();
+        ClientProfileResponse response = clientService.updateClientProfile(email, request);
         return ResponseEntity.ok(response);
     }
 
@@ -68,8 +66,8 @@ public class ClientController {
     public ResponseEntity<ClientStatsResponse> getClientStats(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        UUID userId = UUID.fromString(userDetails.getUsername());
-        ClientStatsResponse response = clientService.getClientStats(userId);
+        String email = userDetails.getUsername();
+        ClientStatsResponse response = clientService.getClientStats(email);
         return ResponseEntity.ok(response);
     }
 
@@ -79,8 +77,8 @@ public class ClientController {
     public ResponseEntity<Void> deleteClient(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        UUID userId = UUID.fromString(userDetails.getUsername());
-        clientService.deleteClient(userId);
+        String email = userDetails.getUsername();
+        clientService.deleteClient(email);
         return ResponseEntity.noContent().build();
     }
 }

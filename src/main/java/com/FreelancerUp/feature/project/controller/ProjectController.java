@@ -19,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -37,12 +39,12 @@ public class ProjectController {
     @PreAuthorize("hasRole('CLIENT')")
     @Operation(summary = "Create a new project", description = "Client can create a new project")
     public ResponseEntity<ProjectResponse> createProject(
+            @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody CreateProjectRequest request) {
-        // TODO: Get clientId from authentication context in Phase 12
-        // For now, this endpoint will be updated after security implementation
-        log.info("REST request to create project");
-        // This is a temporary placeholder - will be fixed in Phase 12
-        throw new UnsupportedOperationException("Will be implemented after security configuration");
+        String email = userDetails.getUsername();
+        log.info("REST request to create project from client: {}", email);
+        ProjectResponse response = projectService.createProject(email, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/search")
@@ -91,15 +93,15 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{projectId}")
-    @PreAuthorize("hasRole('CLIENT') and @projectSecurity.isOwner(#projectId, authentication)")
+    @PreAuthorize("hasRole('CLIENT')")
     @Operation(summary = "Delete project", description = "Delete a project (owner only, OPEN status only)")
     public ResponseEntity<Void> deleteProject(
             @Parameter(description = "Project ID", required = true)
             @PathVariable String projectId,
-            @Parameter(description = "Client ID (from authentication)", required = true)
-            @RequestParam UUID clientId) {
-        log.info("REST request to delete project: {}", projectId);
-        projectService.deleteProject(projectId, clientId);
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        log.info("REST request to delete project: {} from client: {}", projectId, email);
+        projectService.deleteProject(projectId, email);
         return ResponseEntity.noContent().build();
     }
 }

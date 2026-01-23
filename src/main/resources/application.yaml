@@ -88,6 +88,8 @@ app:
       sessions: ${CACHE_TTL_SESSIONS:604800}
       profiles: ${CACHE_TTL_PROFILES:3600}
       projects: ${CACHE_TTL_PROJECTS:900}
+  rate-limit:
+    cleanup-on-startup: ${RATE_LIMIT_CLEANUP_ON_STARTUP:true}
   payment:
     platform-fee-percentage: ${PAYMENT_PLATFORM_FEE_PERCENTAGE:5.0}
     escrow:

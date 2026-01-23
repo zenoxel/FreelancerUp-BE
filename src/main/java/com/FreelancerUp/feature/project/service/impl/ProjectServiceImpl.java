@@ -43,8 +43,14 @@ public class ProjectServiceImpl implements ProjectService {
     private final RedisCacheService redisCacheService;
 
     @Override
-    public ProjectResponse createProject(UUID clientId, CreateProjectRequest request) {
-        log.info("Creating project for client: {}", clientId);
+    public ProjectResponse createProject(String email, CreateProjectRequest request) {
+        log.info("Creating project for email: {}", email);
+
+        // Get user from email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        UUID clientId = user.getId();
 
         // Validate client exists
         Client client = clientRepository.findById(clientId)
@@ -75,10 +81,8 @@ public class ProjectServiceImpl implements ProjectService {
         // Clear cache
         invalidateProjectListCache();
 
-        User clientUser = userRepository.findById(clientId).orElse(null);
-
         log.info("Project created successfully with ID: {}", project.getId());
-        return convertToResponse(project, clientUser);
+        return convertToResponse(project, user);
     }
 
     @Override
@@ -196,8 +200,14 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void deleteProject(String projectId, UUID clientId) {
-        log.info("Deleting project: {}", projectId);
+    public void deleteProject(String projectId, String email) {
+        log.info("Deleting project: {} for email: {}", projectId, email);
+
+        // Get user from email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        UUID clientId = user.getId();
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));

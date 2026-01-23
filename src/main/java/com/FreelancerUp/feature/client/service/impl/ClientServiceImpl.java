@@ -34,12 +34,14 @@ public class ClientServiceImpl implements ClientService {
     private final UserRepository userRepository;
 
     @Override
-    public ClientProfileResponse registerClient(UUID userId, RegisterClientRequest request) {
-        log.info("Registering client profile for user: {}", userId);
+    public ClientProfileResponse registerClient(String email, RegisterClientRequest request) {
+        log.info("Registering client profile for email: {}", email);
 
         // Validate user exists
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        UUID userId = user.getId();
 
         // Check if client profile already exists
         if (clientRepository.findById(userId).isPresent()) {
@@ -63,27 +65,34 @@ public class ClientServiceImpl implements ClientService {
         user.setRole(Role.CLIENT);
         userRepository.save(user);
 
-        log.info("Client profile registered successfully for user: {}", userId);
+        log.info("Client profile registered successfully for email: {}", email);
         return convertToResponse(client, user);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ClientProfileResponse getClientProfile(UUID userId) {
-        log.info("Fetching client profile for user: {}", userId);
+    public ClientProfileResponse getClientProfile(String email) {
+        log.info("Fetching client profile for email: {}", email);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        UUID userId = user.getId();
 
         Client client = clientRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Client profile not found"));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return convertToResponse(client, user);
     }
 
     @Override
-    public ClientProfileResponse updateClientProfile(UUID userId, UpdateClientProfileRequest request) {
-        log.info("Updating client profile for user: {}", userId);
+    public ClientProfileResponse updateClientProfile(String email, UpdateClientProfileRequest request) {
+        log.info("Updating client profile for email: {}", email);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        UUID userId = user.getId();
 
         Client client = clientRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Client profile not found"));
@@ -104,17 +113,19 @@ public class ClientServiceImpl implements ClientService {
 
         client = clientRepository.save(client);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        log.info("Client profile updated successfully for user: {}", userId);
+        log.info("Client profile updated successfully for email: {}", email);
         return convertToResponse(client, user);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ClientStatsResponse getClientStats(UUID userId) {
-        log.info("Fetching client stats for user: {}", userId);
+    public ClientStatsResponse getClientStats(String email) {
+        log.info("Fetching client stats for email: {}", email);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        UUID userId = user.getId();
 
         Client client = clientRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Client profile not found"));
@@ -131,12 +142,14 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public void deleteClient(UUID userId) {
-        log.info("Deleting client profile for user: {}", userId);
+    public void deleteClient(String email) {
+        log.info("Deleting client profile for email: {}", email);
 
         // Soft delete - mark user as inactive
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        UUID userId = user.getId();
 
         user.setIsActive(false);
         userRepository.save(user);
@@ -144,7 +157,7 @@ public class ClientServiceImpl implements ClientService {
         // Delete client profile
         clientRepository.deleteById(userId);
 
-        log.info("Client profile deleted successfully for user: {}", userId);
+        log.info("Client profile deleted successfully for email: {}", email);
     }
 
     // Helper methods

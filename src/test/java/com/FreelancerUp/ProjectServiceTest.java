@@ -57,6 +57,7 @@ class ProjectServiceTest {
 
     private ProjectServiceImpl projectServiceImpl;
 
+    private String userEmail;
     private UUID clientId;
     private User user;
     private Client client;
@@ -72,10 +73,11 @@ class ProjectServiceTest {
         );
 
         clientId = UUID.randomUUID();
+        userEmail = "client@example.com";
 
         user = User.builder()
                 .id(clientId)
-                .email("client@example.com")
+                .email(userEmail)
                 .fullName("John Doe")
                 .avatarUrl("http://example.com/avatar.jpg")
                 .build();
@@ -126,13 +128,13 @@ class ProjectServiceTest {
                 .deadline(LocalDateTime.now().plusDays(60))
                 .build();
 
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
         when(projectRepository.save(any(Project.class))).thenReturn(project);
-        when(userRepository.findById(clientId)).thenReturn(Optional.of(user));
         when(redisCacheService.keys("projects:list:*")).thenReturn(java.util.Set.of());
 
         // When
-        ProjectResponse response = projectServiceImpl.createProject(clientId, request);
+        ProjectResponse response = projectServiceImpl.createProject(userEmail, request);
 
         // Then
         assertThat(response).isNotNull();
@@ -140,6 +142,7 @@ class ProjectServiceTest {
         assertThat(response.getTitle()).isEqualTo("Build Mobile App");
         assertThat(response.getStatus()).isEqualTo(ProjectStatus.OPEN);
 
+        verify(userRepository).findByEmail(userEmail);
         verify(clientRepository).findById(clientId);
         verify(projectRepository).save(any(Project.class));
         verify(clientRepository).save(any(Client.class));
@@ -153,13 +156,15 @@ class ProjectServiceTest {
                 .title("Build Mobile App")
                 .build();
 
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> projectServiceImpl.createProject(clientId, request))
+        assertThatThrownBy(() -> projectServiceImpl.createProject(userEmail, request))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Client not found");
 
+        verify(userRepository).findByEmail(userEmail);
         verify(clientRepository).findById(clientId);
         verify(projectRepository, never()).save(any(Project.class));
     }
@@ -293,15 +298,17 @@ class ProjectServiceTest {
     @DisplayName("Should delete project successfully")
     void testDeleteProject_Success() {
         // Given
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         when(projectRepository.findById("project123")).thenReturn(Optional.of(project));
         when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
         when(redisCacheService.keys("projects:list:*")).thenReturn(java.util.Set.of());
         doNothing().when(projectRepository).deleteById("project123");
 
         // When
-        projectServiceImpl.deleteProject("project123", clientId);
+        projectServiceImpl.deleteProject("project123", userEmail);
 
         // Then
+        verify(userRepository).findByEmail(userEmail);
         verify(projectRepository).findById("project123");
         verify(clientRepository).findById(clientId);
         verify(projectRepository).deleteById("project123");
@@ -312,14 +319,22 @@ class ProjectServiceTest {
     @DisplayName("Should throw BadRequestException when deleting non-owned project")
     void testDeleteProject_NotOwner() {
         // Given
+        String differentEmail = "different@example.com";
         UUID differentClientId = UUID.randomUUID();
+        User differentUser = User.builder()
+                .id(differentClientId)
+                .email(differentEmail)
+                .build();
+
+        when(userRepository.findByEmail(differentEmail)).thenReturn(Optional.of(differentUser));
         when(projectRepository.findById("project123")).thenReturn(Optional.of(project));
 
         // When & Then
-        assertThatThrownBy(() -> projectServiceImpl.deleteProject("project123", differentClientId))
+        assertThatThrownBy(() -> projectServiceImpl.deleteProject("project123", differentEmail))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("You can only delete your own projects");
 
+        verify(userRepository).findByEmail(differentEmail);
         verify(projectRepository).findById("project123");
         verify(projectRepository, never()).deleteById("project123");
     }
@@ -329,13 +344,15 @@ class ProjectServiceTest {
     void testDeleteProject_NotOpen() {
         // Given
         project.setStatus(ProjectStatus.IN_PROGRESS);
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         when(projectRepository.findById("project123")).thenReturn(Optional.of(project));
 
         // When & Then
-        assertThatThrownBy(() -> projectServiceImpl.deleteProject("project123", clientId))
+        assertThatThrownBy(() -> projectServiceImpl.deleteProject("project123", userEmail))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("Can only delete projects with OPEN status");
 
+        verify(userRepository).findByEmail(userEmail);
         verify(projectRepository).findById("project123");
         verify(projectRepository, never()).deleteById("project123");
     }
