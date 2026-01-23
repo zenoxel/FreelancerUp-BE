@@ -46,6 +46,7 @@ class ClientServiceTest {
     // Use the actual implementation class
     private com.FreelancerUp.feature.client.service.impl.ClientServiceImpl clientServiceImpl;
 
+    private String userEmail;
     private UUID userId;
     private User user;
     private Client client;
@@ -55,10 +56,11 @@ class ClientServiceTest {
         clientServiceImpl = new com.FreelancerUp.feature.client.service.impl.ClientServiceImpl(clientRepository, userRepository);
 
         userId = UUID.randomUUID();
+        userEmail = "client@example.com";
 
         user = User.builder()
                 .id(userId)
-                .email("client@example.com")
+                .email(userEmail)
                 .fullName("John Doe")
                 .avatarUrl("http://example.com/avatar.jpg")
                 .role(Role.USER)
@@ -95,13 +97,13 @@ class ClientServiceTest {
                 .paymentMethods(List.of())
                 .build();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         when(clientRepository.findById(userId)).thenReturn(Optional.empty());
         when(clientRepository.save(any(Client.class))).thenReturn(client);
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         // When
-        ClientProfileResponse response = clientServiceImpl.registerClient(userId, request);
+        ClientProfileResponse response = clientServiceImpl.registerClient(userEmail, request);
 
         // Then
         assertThat(response).isNotNull();
@@ -112,7 +114,7 @@ class ClientServiceTest {
         assertThat(response.getTotalSpent()).isEqualByComparingTo("0");
         assertThat(response.getPostedProjects()).isEqualTo(0);
 
-        verify(userRepository).findById(userId);
+        verify(userRepository).findByEmail(userEmail);
         verify(clientRepository).findById(userId);
         verify(clientRepository).save(any(Client.class));
         verify(userRepository).save(any(User.class));
@@ -128,14 +130,14 @@ class ClientServiceTest {
                 .companyName("Tech Corp")
                 .build();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> clientServiceImpl.registerClient(userId, request))
+        assertThatThrownBy(() -> clientServiceImpl.registerClient(userEmail, request))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User not found");
 
-        verify(userRepository).findById(userId);
+        verify(userRepository).findByEmail(userEmail);
         verify(clientRepository, never()).save(any(Client.class));
         verify(userRepository, never()).save(any(User.class));
     }
@@ -148,15 +150,15 @@ class ClientServiceTest {
                 .companyName("Tech Corp")
                 .build();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         when(clientRepository.findById(userId)).thenReturn(Optional.of(client));
 
         // When & Then
-        assertThatThrownBy(() -> clientServiceImpl.registerClient(userId, request))
+        assertThatThrownBy(() -> clientServiceImpl.registerClient(userEmail, request))
                 .isInstanceOf(ConflictException.class)
                 .hasMessage("Client profile already exists");
 
-        verify(userRepository).findById(userId);
+        verify(userRepository).findByEmail(userEmail);
         verify(clientRepository).findById(userId);
         verify(clientRepository, never()).save(any(Client.class));
     }
@@ -165,11 +167,11 @@ class ClientServiceTest {
     @DisplayName("Should get client profile successfully")
     void testGetClientProfile_Success() {
         // Given
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         when(clientRepository.findById(userId)).thenReturn(Optional.of(client));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         // When
-        ClientProfileResponse response = clientServiceImpl.getClientProfile(userId);
+        ClientProfileResponse response = clientServiceImpl.getClientProfile(userEmail);
 
         // Then
         assertThat(response).isNotNull();
@@ -178,23 +180,23 @@ class ClientServiceTest {
         assertThat(response.getFullName()).isEqualTo("John Doe");
         assertThat(response.getCompanyName()).isEqualTo("Tech Corp");
 
+        verify(userRepository).findByEmail(userEmail);
         verify(clientRepository).findById(userId);
-        verify(userRepository).findById(userId);
     }
 
     @Test
     @DisplayName("Should throw ResourceNotFoundException when client profile not found")
     void testGetClientProfile_NotFound() {
         // Given
-        when(clientRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
 
         // When & Then
-        assertThatThrownBy(() -> clientServiceImpl.getClientProfile(userId))
+        assertThatThrownBy(() -> clientServiceImpl.getClientProfile(userEmail))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Client profile not found");
 
+        verify(userRepository).findByEmail(userEmail);
         verify(clientRepository).findById(userId);
-        verify(userRepository, never()).findById(userId);
     }
 
     @Test
@@ -208,12 +210,12 @@ class ClientServiceTest {
                 .paymentMethods(List.of())
                 .build();
 
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         when(clientRepository.findById(userId)).thenReturn(Optional.of(client));
         when(clientRepository.save(any(Client.class))).thenReturn(client);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         // When
-        ClientProfileResponse response = clientServiceImpl.updateClientProfile(userId, request);
+        ClientProfileResponse response = clientServiceImpl.updateClientProfile(userEmail, request);
 
         // Then
         assertThat(response).isNotNull();
@@ -221,6 +223,7 @@ class ClientServiceTest {
         assertThat(client.getIndustry()).isEqualTo("Software");
         assertThat(client.getCompanySize()).isEqualTo(CompanySize.SIZE_51_200);
 
+        verify(userRepository).findByEmail(userEmail);
         verify(clientRepository).findById(userId);
         verify(clientRepository).save(any(Client.class));
     }
@@ -233,12 +236,12 @@ class ClientServiceTest {
                 .companyName("Partial Update")
                 .build();
 
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         when(clientRepository.findById(userId)).thenReturn(Optional.of(client));
         when(clientRepository.save(any(Client.class))).thenReturn(client);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         // When
-        clientServiceImpl.updateClientProfile(userId, request);
+        clientServiceImpl.updateClientProfile(userEmail, request);
 
         // Then
         assertThat(client.getCompanyName()).isEqualTo("Partial Update");
@@ -252,10 +255,11 @@ class ClientServiceTest {
     @DisplayName("Should get client stats successfully")
     void testGetClientStats_Success() {
         // Given
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         when(clientRepository.findById(userId)).thenReturn(Optional.of(client));
 
         // When
-        ClientStatsResponse response = clientServiceImpl.getClientStats(userId);
+        ClientStatsResponse response = clientServiceImpl.getClientStats(userEmail);
 
         // Then
         assertThat(response).isNotNull();
@@ -264,6 +268,7 @@ class ClientServiceTest {
         assertThat(response.getTotalProjects()).isEqualTo(0);
         assertThat(response.getTotalSpent()).isEqualByComparingTo("0");
 
+        verify(userRepository).findByEmail(userEmail);
         verify(clientRepository).findById(userId);
     }
 
@@ -271,17 +276,17 @@ class ClientServiceTest {
     @DisplayName("Should delete client successfully")
     void testDeleteClient_Success() {
         // Given
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         doNothing().when(clientRepository).deleteById(userId);
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         // When
-        clientServiceImpl.deleteClient(userId);
+        clientServiceImpl.deleteClient(userEmail);
 
         // Then
         assertThat(user.getIsActive()).isFalse();
 
-        verify(userRepository).findById(userId);
+        verify(userRepository).findByEmail(userEmail);
         verify(clientRepository).deleteById(userId);
         verify(userRepository).save(any(User.class));
     }
@@ -290,14 +295,14 @@ class ClientServiceTest {
     @DisplayName("Should throw ResourceNotFoundException when deleting non-existent user")
     void testDeleteClient_UserNotFound() {
         // Given
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> clientServiceImpl.deleteClient(userId))
+        assertThatThrownBy(() -> clientServiceImpl.deleteClient(userEmail))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User not found");
 
-        verify(userRepository).findById(userId);
+        verify(userRepository).findByEmail(userEmail);
         verify(clientRepository, never()).deleteById(userId);
     }
 }

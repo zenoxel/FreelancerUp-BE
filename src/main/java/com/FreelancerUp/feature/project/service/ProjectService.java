@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public interface ProjectService {
 
-    ProjectResponse createProject(UUID clientId, CreateProjectRequest request);
+    ProjectResponse createProject(String email, CreateProjectRequest request);
 
     ProjectResponse updateProject(String projectId, UpdateProjectRequest request);
 
@@ -22,5 +22,5 @@ public interface ProjectService {
 
     Page<ProjectResponse> searchProjects(ProjectSearchRequest request);
 
-    void deleteProject(String projectId, UUID clientId);
+    void deleteProject(String projectId, String email);
 }

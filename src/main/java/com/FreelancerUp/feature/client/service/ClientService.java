@@ -5,17 +5,15 @@ import com.FreelancerUp.feature.client.dto.request.UpdateClientProfileRequest;
 import com.FreelancerUp.feature.client.dto.response.ClientProfileResponse;
 import com.FreelancerUp.feature.client.dto.response.ClientStatsResponse;
 
-import java.util.UUID;
-
 public interface ClientService {
 
-    ClientProfileResponse registerClient(UUID userId, RegisterClientRequest request);
+    ClientProfileResponse registerClient(String email, RegisterClientRequest request);
 
-    ClientProfileResponse getClientProfile(UUID userId);
+    ClientProfileResponse getClientProfile(String email);
 
-    ClientProfileResponse updateClientProfile(UUID userId, UpdateClientProfileRequest request);
+    ClientProfileResponse updateClientProfile(String email, UpdateClientProfileRequest request);
 
-    ClientStatsResponse getClientStats(UUID userId);
+    ClientStatsResponse getClientStats(String email);
 
-    void deleteClient(UUID userId);
+    void deleteClient(String email);
 }
